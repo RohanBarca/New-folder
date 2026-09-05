@@ -9,7 +9,7 @@
  *  - Requests include Bearer tokens in Authorization headers.
  */
 
-const API_BASE = '';
+import { API_BASE } from './api';
 
 async function parseJsonResponse(res) {
   const text = await res.text();

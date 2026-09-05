@@ -11,6 +11,8 @@
  */
 
 // Initial realistic clinical mock data store
+import { API_BASE } from './api';
+
 let MOCK_PATIENTS = [
   {
     id: "MS-8492",
@@ -586,8 +588,6 @@ let MOCK_PATIENTS = [
 ];
 
 let backendAvailabilityCache = { checkedAt: 0, available: false };
-const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-
 const CLINICAL_HISTORY_SECTIONS = [
   'chief_complaint',
   'hpi',

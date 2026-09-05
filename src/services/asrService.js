@@ -24,13 +24,15 @@ export const ASR_LANGUAGE_NAMES = {
   'doi-IN': 'Dogri',
 };
 
+import { API_BASE } from './api';
+
 const asrService = {
   async transcribe(audioBlob, language = 'en') {
     const formData = new FormData();
     formData.append('file', audioBlob, 'medsync-recording.webm');
     formData.append('language', language);
 
-    const response = await fetch('/api/asr/transcribe', {
+    const response = await fetch(`${API_BASE}/api/asr/transcribe`, {
       method: 'POST',
       body: formData,
     });

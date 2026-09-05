@@ -12,6 +12,7 @@ import QuickReplies from '../components/chat/QuickReplies';
 import InterviewComplete from '../components/chat/InterviewComplete';
 import aiService from '../services/aiService';
 import speechService from '../services/speechService';
+import { API_BASE } from '../services/api';
 
 export default function PatientChat() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function PatientChat() {
     if (storedSessionId && currentPatientId) {
       const restoreSession = async () => {
         try {
-          const res = await fetch(`/api/chat/session/${storedSessionId}`);
+          const res = await fetch(`${API_BASE}/api/chat/session/${storedSessionId}`);
           if (res.ok) {
             const data = await res.json();
             setSessionId(storedSessionId);

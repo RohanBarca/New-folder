@@ -12,7 +12,7 @@
  * API_BASE defaults to '' (relative path) so Vite proxy routes to localhost:8000.
  */
 
-const API_BASE = '';
+import { API_BASE } from './api';
 
 function getHeaders(extraHeaders = {}) {
   const token = sessionStorage.getItem('medsync_token');

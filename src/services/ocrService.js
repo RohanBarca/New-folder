@@ -10,6 +10,8 @@
  * calls are managed securely by the backend server.
  */
 
+import { API_BASE } from './api';
+
 export const ocrService = {
   /**
    * Uploads and extracts text from a medical document, associating it with the patient record.
@@ -67,7 +69,7 @@ export const ocrService = {
 
     try {
       // Calls the patient document upload endpoint
-      const response = await fetch(`/api/patients/${resolvedPatientId}/documents`, {
+      const response = await fetch(`${API_BASE}/api/patients/${resolvedPatientId}/documents`, {
         method: 'POST',
         body: formData,
       });
@@ -129,7 +131,7 @@ export const ocrService = {
   async getPatientDocuments(patientId) {
     if (!patientId) return [];
     try {
-      const res = await fetch(`/api/patients/${patientId}/documents`);
+      const res = await fetch(`${API_BASE}/api/patients/${patientId}/documents`);
       if (!res.ok) return [];
       return await res.json();
     } catch {
@@ -146,7 +148,7 @@ export const ocrService = {
   async getDocumentOcr(documentId) {
     if (!documentId) return null;
     try {
-      const res = await fetch(`/api/documents/${documentId}/ocr`);
+      const res = await fetch(`${API_BASE}/api/documents/${documentId}/ocr`);
       if (!res.ok) return null;
       return await res.json();
     } catch {

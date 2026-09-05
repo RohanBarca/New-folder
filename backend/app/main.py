@@ -33,10 +33,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS for local React Vite development
+configured_frontend_origins = [
+    origin.strip()
+    for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+# Local Vite development plus Netlify-hosted frontend origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
+    allow_origins=configured_frontend_origins + [
         "http://localhost:4173",
         "http://127.0.0.1:4173",
         "http://localhost:4174",
@@ -51,8 +57,9 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://localhost:8000",
-        "http://127.0.0.1:8000"
+        "http://127.0.0.1:8000",
     ],
+    allow_origin_regex=r"https://[a-z0-9-]+\.netlify\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

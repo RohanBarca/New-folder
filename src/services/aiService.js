@@ -9,13 +9,15 @@
  *  - All requests are securely routed to the backend at /api/* endpoints.
  */
 
+import { API_BASE } from './api';
+
 const aiService = {
   /**
    * Sends raw text from medical records to /api/summarize
    */
   async summarize(text) {
     try {
-      const response = await fetch('/api/summarize', {
+      const response = await fetch(`${API_BASE}/api/summarize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -44,7 +46,7 @@ const aiService = {
    */
   async summarizeMedicalDocument(ocrText) {
     try {
-      const response = await fetch('/api/summarize', {
+      const response = await fetch(`${API_BASE}/api/summarize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ocr_text: ocrText }),
@@ -79,7 +81,7 @@ const aiService = {
         patient_id: patientId || undefined
       };
 
-      const response = await fetch('/api/chat/start', {
+      const response = await fetch(`${API_BASE}/api/chat/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -117,7 +119,7 @@ const aiService = {
         payload.patient_id = resolvedPatientId;
       }
 
-      const response = await fetch('/api/chat/message', {
+      const response = await fetch(`${API_BASE}/api/chat/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -147,7 +149,7 @@ const aiService = {
   async getChatSessionMessages(sessionId, patientId = null) {
     try {
       const resolvedPatientId = patientId || sessionStorage.getItem('medsync_patient_id');
-      let url = `/api/chat/sessions/${sessionId}/messages`;
+      let url = `${API_BASE}/api/chat/sessions/${sessionId}/messages`;
       if (resolvedPatientId) {
         url += `?patient_id=${encodeURIComponent(resolvedPatientId)}`;
       }
@@ -165,7 +167,7 @@ const aiService = {
    */
   async getPatientChatSessions(patientId) {
     try {
-      const res = await fetch(`/api/patients/${patientId}/chat-sessions`);
+      const res = await fetch(`${API_BASE}/api/patients/${patientId}/chat-sessions`);
       if (!res.ok) return [];
       return await res.json();
     } catch {
@@ -178,7 +180,7 @@ const aiService = {
    */
   async getPatientAyushHistory(patientId) {
     try {
-      const res = await fetch(`/api/patients/${patientId}/ayush-history`);
+      const res = await fetch(`${API_BASE}/api/patients/${patientId}/ayush-history`);
       if (!res.ok) return null;
       const data = await res.json();
       return data.ayush_history || null;
@@ -192,7 +194,7 @@ const aiService = {
    */
   async updateSessionLanguage(sessionId, language) {
     try {
-      const response = await fetch(`/api/chat/session/${sessionId}/language`, {
+      const response = await fetch(`${API_BASE}/api/chat/session/${sessionId}/language`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ language }),
@@ -221,7 +223,7 @@ const aiService = {
    */
   async checkHealth() {
     try {
-      const response = await fetch('/api/groq/health');
+      const response = await fetch(`${API_BASE}/api/groq/health`);
       return await response.json();
     } catch {
       return {
@@ -244,7 +246,7 @@ const aiService = {
    */
   async generateFinalSummary(patientId) {
     try {
-      const response = await fetch(`/api/patients/${patientId}/summary/generate`, {
+      const response = await fetch(`${API_BASE}/api/patients/${patientId}/summary/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -276,7 +278,7 @@ const aiService = {
    */
   async getLatestSummary(patientId) {
     try {
-      const response = await fetch(`/api/patients/${patientId}/summary`);
+      const response = await fetch(`${API_BASE}/api/patients/${patientId}/summary`);
       const data = await response.json();
 
       if (response.status === 404) {
@@ -307,7 +309,7 @@ const aiService = {
    */
   async getSummaryVersions(patientId) {
     try {
-      const response = await fetch(`/api/patients/${patientId}/summary/versions`);
+      const response = await fetch(`${API_BASE}/api/patients/${patientId}/summary/versions`);
       if (!response.ok) return { total_versions: 0, versions: [] };
       return await response.json();
     } catch {
@@ -317,7 +319,7 @@ const aiService = {
 
   async getRedFlags(patientId) {
     try {
-      const response = await fetch(`/api/patients/${patientId}/red-flags`);
+      const response = await fetch(`${API_BASE}/api/patients/${patientId}/red-flags`);
       if (!response.ok) return { success: false, red_flags: [] };
       return await response.json();
     } catch {

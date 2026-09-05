@@ -15,7 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-const API_BASE = '';
+import { API_BASE } from '../../services/api';
 
 function formatMaskedPhone(value) {
   if (!value) return '—';
