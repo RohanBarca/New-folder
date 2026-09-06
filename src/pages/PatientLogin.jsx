@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Activity,
@@ -14,21 +14,81 @@ import {
   Lock,
 } from 'lucide-react';
 import authService from '../services/authService';
+import { resetRecaptcha, sendOTP, setupRecaptcha, verifyOTP } from '../services/firebaseAuthService';
+
+const OTP_RESEND_COOLDOWN_SECONDS = 30;
+
+function getFirebaseErrorMessage(error) {
+  switch (error?.code) {
+    case 'auth/invalid-phone-number':
+      return 'Please enter a valid Indian mobile number.';
+    case 'auth/invalid-verification-code':
+      return 'The OTP is invalid. Please check the code and try again.';
+    case 'auth/code-expired':
+      return 'This OTP has expired. Please request a new OTP.';
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Please wait and try again later.';
+    case 'auth/quota-exceeded':
+      return 'OTP sending is temporarily unavailable. Please try again later.';
+    default:
+      return error?.message || 'Unable to continue. Please try again.';
+  }
+}
 
 export default function PatientLogin({ registration = false }) {
   const navigate = useNavigate();
   const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState('phone');
+  const [recaptchaVerified, setRecaptchaVerified] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const recaptchaRef = useRef(null);
+
+  useEffect(() => {
+    if (step !== 'phone') return undefined;
+
+    const renderRecaptcha = async () => {
+      try {
+        recaptchaRef.current = setupRecaptcha('recaptcha-container', {
+          onVerified: () => setRecaptchaVerified(true),
+          onExpired: () => {
+            setRecaptchaVerified(false);
+            setError('The reCAPTCHA expired. Please complete it again.');
+          },
+        });
+        await recaptchaRef.current.render();
+      } catch (err) {
+        setError(getFirebaseErrorMessage(err));
+      }
+    };
+
+    renderRecaptcha();
+    return () => {
+      resetRecaptcha();
+      recaptchaRef.current = null;
+      setRecaptchaVerified(false);
+    };
+  }, [step]);
+
+  useEffect(() => {
+    if (!resendIn) return undefined;
+    const timer = window.setInterval(() => {
+      setResendIn((seconds) => (seconds > 0 ? seconds - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendIn]);
 
   // Handle phone input formatting (only digits, max 10)
   const handlePhoneChange = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
     setPhone(val);
+    setRecaptchaVerified(false);
     setError('');
   };
 
-  const handleContinueWithPhone = async (e) => {
+  const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     setError('');
 
@@ -40,18 +100,50 @@ export default function PatientLogin({ registration = false }) {
     setLoading(true);
 
     try {
-      const res = await authService.loginWithPhone(`+91${phone}`);
-      if (!res.success) {
-        setError(res.error || 'Unable to sign in with this phone number.');
-        return;
-      }
-
-      navigate(registration ? '/patient/register/details' : '/patient/dashboard');
+      await sendOTP(`+91${phone}`);
+      setOtp('');
+      setStep('otp');
+      setResendIn(OTP_RESEND_COOLDOWN_SECONDS);
     } catch (err) {
-      setError(err.message || 'Unable to continue with this phone number. Please try again.');
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    if (e) e.preventDefault();
+    setError('');
+    if (!/^\d{6}$/.test(otp)) {
+      setError('Please enter the 6-digit OTP sent to your phone.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await verifyOTP(otp);
+      const res = await authService.loginWithPhone(`+91${phone}`);
+      if (!res.success) {
+        setError(res.error || 'Unable to connect your MedSync account.');
+        return;
+      }
+      navigate(registration ? '/patient/register/details' : '/patient/dashboard');
+    } catch (err) {
+      setError(getFirebaseErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changePhone = () => {
+    setError('');
+    setOtp('');
+    setResendIn(0);
+    setStep('phone');
+  };
+
+  const handleResend = () => {
+    if (!resendIn) changePhone();
   };
 
   return (
@@ -92,10 +184,12 @@ export default function PatientLogin({ registration = false }) {
               <Smartphone className="w-8 h-8 stroke-[2]" />
             </div>
             <h1 className="text-2xl font-extrabold text-[#17385E] tracking-tight">
-              Continue with Mobile Number
+              {step === 'phone' ? 'Continue with Mobile Number' : 'Enter your OTP'}
             </h1>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Enter your phone number to continue. Each patient is identified by their unique mobile number.
+              {step === 'phone'
+                ? 'Verify your mobile number securely to continue with MedSync.'
+                : `Enter the 6-digit code sent to +91 ${phone}.`}
             </p>
           </div>
 
@@ -106,8 +200,9 @@ export default function PatientLogin({ registration = false }) {
             </div>
           )}
 
-          <form onSubmit={handleContinueWithPhone} className="space-y-5">
-            <div className="space-y-1.5">
+          {step === 'phone' ? (
+            <form onSubmit={handleSendOtp} className="space-y-5">
+              <div className="space-y-1.5">
               <label htmlFor="phone-input" className="text-xs font-bold text-[#17385E]">
                 Indian Mobile Number
               </label>
@@ -127,30 +222,56 @@ export default function PatientLogin({ registration = false }) {
                   className="w-full px-4 py-3.5 bg-white text-[#17385E] text-base font-bold placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                No OTP, no verification. The same number always identifies the same patient.
-              </p>
-            </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  A one-time password will be sent after you verify that you are human.
+                </p>
+              </div>
 
-            <button
-              id="continue-phone-btn"
-              type="submit"
-              disabled={loading || phone.length !== 10}
-              className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-base font-bold text-white bg-[#18A6A1] hover:bg-[#148F8B] shadow-md shadow-[#18A6A1]/20 hover:shadow-teal-glow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Continuing...</span>
-                </>
-              ) : (
-                <>
-                  <span>Continue</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
+              <div className="flex justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3 min-h-[78px]">
+                <div id="recaptcha-container" />
+              </div>
+
+              <button
+                id="send-otp-btn"
+                type="submit"
+                disabled={loading || phone.length !== 10 || !recaptchaVerified}
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-base font-bold text-white bg-[#18A6A1] hover:bg-[#148F8B] shadow-md shadow-[#18A6A1]/20 hover:shadow-teal-glow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Sending OTP...</span></> : <><span>Send OTP</span><ArrowRight className="w-4 h-4" /></>}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-5">
+              <div className="space-y-1.5">
+                <label htmlFor="otp-input" className="text-xs font-bold text-[#17385E]">One-time password</label>
+                <input
+                  id="otp-input"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={otp}
+                  onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Enter 6-digit OTP"
+                  autoFocus
+                  className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-[#17385E] text-lg font-bold tracking-[0.35em] text-center focus:outline-none focus:ring-2 focus:ring-[#18A6A1]/40 focus:border-[#18A6A1]"
+                />
+              </div>
+              <button
+                id="verify-otp-btn"
+                type="submit"
+                disabled={loading || otp.length !== 6}
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-base font-bold text-white bg-[#18A6A1] hover:bg-[#148F8B] shadow-md shadow-[#18A6A1]/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Verifying...</span></> : <><span>Verify OTP</span><CheckCircle2 className="w-4 h-4" /></>}
+              </button>
+              <div className="flex items-center justify-between text-xs font-bold">
+                <button type="button" onClick={changePhone} className="text-[#17385E] hover:text-[#18A6A1]">Change number</button>
+                <button type="button" onClick={handleResend} disabled={resendIn > 0 || loading} className="text-[#18A6A1] hover:text-[#148F8B] disabled:text-slate-400">
+                  {resendIn > 0 ? `Resend OTP in ${resendIn}s` : 'Resend OTP'}
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="pt-4 border-t border-slate-100 text-center space-y-3">
             <p className="text-xs text-slate-400 font-medium">Or continue with</p>
