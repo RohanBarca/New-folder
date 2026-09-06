@@ -49,13 +49,13 @@ function AIAnalyzingCard() {
         <Sparkles className="w-8 h-8 text-white animate-spin" style={{ animationDuration: '3s' }} />
       </div>
       <div className="space-y-2">
-        <h3 className="text-xl font-extrabold text-[#17385E]">Groq AI is Analyzing...</h3>
+        <h3 className="text-xl font-extrabold text-[#17385E]">MedSync AI is analyzing...</h3>
         <p className="text-sm text-slate-500">Reading your medical records and synthesizing a structured clinical summary.</p>
-        <p className="text-xs text-slate-400">Powered by LLaMA on Groq ultra-fast inference.</p>
+        <p className="text-xs text-slate-400">Preparing a structured summary from your record.</p>
       </div>
       <div className="flex items-center gap-2 text-xs text-[#18A6A1] font-semibold">
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span>Processing with LLaMA 3.3 on Groq</span>
+        <span>Processing securely with MedSync AI</span>
       </div>
     </div>
   );
@@ -164,9 +164,6 @@ export default function MedicalRecords() {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FBFC] text-[#17385E] selection:bg-[#18A6A1] selection:text-white relative overflow-hidden">
 
-      {/* Background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[#18A6A1]/10 via-[#EAFafa]/40 to-transparent rounded-full blur-3xl -z-10 pointer-events-none" />
-
       {/* ── Header ── */}
       <header className="py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -216,7 +213,7 @@ export default function MedicalRecords() {
               <p className="text-sm text-slate-600 leading-relaxed">
                 {step === 0 && 'Upload a prescription, lab report, or any medical document — we\'ll read and analyze it for you.'}
                 {step === 1 && 'Confirm the document looks correct, then click Read Document to extract the text.'}
-                {step === 2 && 'Here\'s the raw text extracted from your document. Click Analyze with Groq AI to get a structured summary.'}
+                {step === 2 && 'Here\'s the raw text extracted from your document. Click Analyze with MedSync AI to get a structured summary.'}
               </p>
 
               {/* Patient Session Status Indicator */}

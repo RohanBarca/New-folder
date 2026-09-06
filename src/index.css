@@ -3,9 +3,85 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --background: #f5f8fa;
+    --foreground: #17324d;
+    --card: #ffffff;
+    --card-foreground: #17324d;
+    --border: #d9e2e8;
+    --muted: #edf2f5;
+    --muted-foreground: #5d7084;
+    --primary: #137c8b;
+    --primary-foreground: #ffffff;
+    --success: #18794e;
+    --warning: #a15c00;
+    --error: #b42318;
+    --medsync-ink: #17324d;
+    --medsync-muted: #5d7084;
+    --medsync-blue: #137c8b;
+    --medsync-blue-dark: #0d6471;
+    --medsync-blue-soft: #eaf5f6;
+    --medsync-surface: #ffffff;
+    --medsync-canvas: #f5f8fa;
+    --medsync-border: #d9e2e8;
+    --medsync-focus: #0f7f8d;
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --background: #101b27;
+    --foreground: #e7eef4;
+    --card: #182838;
+    --card-foreground: #e7eef4;
+    --border: #304353;
+    --muted: #223444;
+    --muted-foreground: #a9bac8;
+    --primary: #4bb7bd;
+    --primary-foreground: #09242b;
+    --success: #55c58a;
+    --warning: #f0b35a;
+    --error: #ff8f87;
+    --medsync-ink: #e7eef4;
+    --medsync-muted: #a9bac8;
+    --medsync-blue: #4bb7bd;
+    --medsync-blue-dark: #77d0d2;
+    --medsync-blue-soft: #193b43;
+    --medsync-surface: #182838;
+    --medsync-canvas: #101b27;
+    --medsync-border: #304353;
+    --medsync-focus: #77d0d2;
+  }
+
   html {
     scroll-behavior: smooth;
-    font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--medsync-canvas);
+  }
+
+  body {
+    margin: 0;
+    color: var(--foreground);
+    background: var(--background);
+    -webkit-font-smoothing: antialiased;
+    transition: color 160ms ease, background-color 160ms ease;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--primary) 38%, transparent);
+    outline-offset: 2px;
   }
 }
 
@@ -14,26 +90,157 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #18A6A1;
+  background: var(--primary);
 }
 
-/* Glassmorphism helpers */
+/* Shared clinical surfaces. Legacy glass class names remain valid for callers,
+   but intentionally render as opaque, bordered panels. */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(24, 166, 161, 0.12);
+  background: var(--medsync-surface);
+  border: 1px solid var(--medsync-border);
+  box-shadow: 0 2px 8px rgba(23, 50, 77, 0.05);
 }
 
 .glass-nav {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--medsync-surface);
+  border-bottom: 1px solid var(--medsync-border);
+}
+
+/* Reduce the rounded-card and motion-heavy visual language without touching
+   component behavior or route logic. */
+.rounded-3xl,
+.rounded-2xl {
+  border-radius: 12px !important;
+}
+
+.rounded-xl {
+  border-radius: 10px !important;
+}
+
+button.rounded-full,
+a.rounded-full {
+  border-radius: 8px !important;
+}
+
+.shadow-soft,
+.shadow-soft-sm,
+.shadow-soft-lg,
+.shadow-teal-glow,
+.shadow-md,
+.shadow-lg,
+.shadow-xl {
+  box-shadow: 0 2px 8px rgba(23, 50, 77, 0.07) !important;
+}
+
+.animate-float-slow,
+.animate-float-delayed,
+.animate-ping,
+.animate-pulse-subtle {
+  animation: none !important;
+}
+
+.blur-3xl,
+.blur-2xl,
+.blur-xl {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Compatibility layer for the existing Tailwind utility classes. New UI can
+   use the semantic variables directly; existing screens inherit the same
+   tokens without changing their behavior or data flow. */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .bg-\[\#F8FBFC\] {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+html[data-theme="dark"] [class*="bg-white"],
+html[data-theme="dark"] [class*="bg-slate-50"],
+html[data-theme="dark"] [class*="bg-slate-100"] {
+  background-color: var(--card) !important;
+}
+
+html[data-theme="dark"] [class*="bg-\[\#F8FBFC\]"] {
+  background-color: var(--background) !important;
+}
+
+html[data-theme="dark"] [class*="bg-\[\#EAFafa\]"],
+html[data-theme="dark"] [class*="bg-\[\#EAF5F6\]"],
+html[data-theme="dark"] [class*="bg-blue-50"],
+html[data-theme="dark"] [class*="bg-cyan-50"] {
+  background-color: #193b43 !important;
+}
+
+html[data-theme="dark"] [class*="bg-gradient"] {
+  background-image: none !important;
+  background-color: var(--card) !important;
+}
+
+html[data-theme="dark"] [class*="text-\[\#17385E\]"],
+html[data-theme="dark"] [class*="text-slate-600"],
+html[data-theme="dark"] [class*="text-slate-700"],
+html[data-theme="dark"] [class*="text-slate-800"],
+html[data-theme="dark"] [class*="text-slate-900"] {
+  color: var(--foreground) !important;
+}
+
+html[data-theme="dark"] [class*="text-slate-400"],
+html[data-theme="dark"] [class*="text-slate-500"] {
+  color: var(--muted-foreground) !important;
+}
+
+html[data-theme="dark"] [class*="border-slate-100"],
+html[data-theme="dark"] [class*="border-slate-200"],
+html[data-theme="dark"] [class*="border-slate-300"],
+html[data-theme="dark"] [class*="border-\[\#CBD5E1\]"] {
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  color: var(--foreground);
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
+html[data-theme="dark"] .theme-toggle {
+  color: var(--foreground);
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] [class*="bg-red-50"] { background-color: #452528 !important; }
+html[data-theme="dark"] [class*="bg-amber-50"] { background-color: #44351f !important; }
+html[data-theme="dark"] [class*="bg-emerald-50"] { background-color: #1d3c32 !important; }
+html[data-theme="dark"] [class*="text-red-"] { color: var(--error) !important; }
+html[data-theme="dark"] [class*="text-amber-"] { color: var(--warning) !important; }
+html[data-theme="dark"] [class*="text-emerald-"] { color: var(--success) !important; }
+
+html[data-theme="dark"] .bg-black\/30,
+html[data-theme="dark"] .bg-slate-900\/50 {
+  background-color: rgba(0, 0, 0, 0.68) !important;
 }

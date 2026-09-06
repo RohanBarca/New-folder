@@ -113,7 +113,7 @@ export default function OCRResult({ text, processingTime, isEmpty, onReset, onAn
           className="w-full inline-flex items-center justify-center gap-2.5 py-4 px-8 rounded-full text-base font-bold text-white bg-gradient-to-r from-[#18A6A1] to-[#1a8fa8] hover:from-[#148F8B] hover:to-[#177a92] shadow-lg shadow-[#18A6A1]/30 transition-all duration-200 cursor-pointer"
         >
           <Sparkles className="w-5 h-5" />
-          <span>Analyze with Groq AI</span>
+          <span>Analyze with MedSync AI</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
@@ -144,7 +144,7 @@ export default function OCRResult({ text, processingTime, isEmpty, onReset, onAn
       <div className="p-3.5 rounded-2xl bg-[#EAFafa]/70 border border-[#18A6A1]/20 flex items-start gap-2.5 text-xs text-[#17385E]/80">
         <Sparkles className="w-4 h-4 text-[#18A6A1] shrink-0 mt-0.5" />
         <p className="leading-relaxed">
-          <strong>Next:</strong> Groq AI will read this record and produce a structured medical summary with patient overview, complaints, history, diagnoses, medications, observations, and visit timeline.
+          <strong>Next:</strong> MedSync AI will read this record and produce a structured medical summary with patient overview, complaints, history, diagnoses, medications, observations, and visit timeline.
         </p>
       </div>
 

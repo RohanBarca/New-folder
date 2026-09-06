@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Activity, Globe, X, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import ThemeToggle from '../ThemeToggle';
 
 export default function ChatHeader({
   onExit,
@@ -31,7 +32,7 @@ export default function ChatHeader({
         {/* Left: Brand + Title */}
         <div className="flex items-center gap-3 min-w-0">
           <Link to="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#18A6A1] to-[#25C4BE] flex items-center justify-center shadow-md shadow-[#18A6A1]/20 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-[#137C8B] flex items-center justify-center">
               <Activity className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
           </Link>
@@ -54,13 +55,14 @@ export default function ChatHeader({
 
         {/* Right: Auto-Speak + Language Selector & Exit */}
         <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle compact />
           
           {/* Auto-Speak Toggle Button */}
           {onToggleAutoSpeak && (
             <button
               type="button"
               onClick={onToggleAutoSpeak}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
                 autoSpeak
                   ? 'bg-[#EAFafa] text-[#18A6A1] border-[#18A6A1]/40 shadow-2xs'
                   : 'bg-slate-100 text-slate-600 hover:text-[#17385E] border-slate-200 hover:border-slate-300'
@@ -86,7 +88,7 @@ export default function ChatHeader({
           )}
 
           {/* Language Selector */}
-          <div className="relative inline-flex items-center p-0.5 rounded-full bg-slate-100/90 border border-slate-200 text-xs font-semibold text-[#17385E]">
+          <div className="relative inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-[#17385E]">
             <div className="flex items-center gap-1 pl-2 pr-1 text-slate-400">
               <Globe className="w-3.5 h-3.5 text-[#18A6A1]" />
             </div>
@@ -98,7 +100,7 @@ export default function ChatHeader({
                     key={lang.code}
                     type="button"
                     onClick={() => onLanguageChange && onLanguageChange(lang.code)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors cursor-pointer ${
                       isActive
                         ? 'bg-white text-[#18A6A1] shadow-2xs border border-slate-200/80 scale-102'
                         : 'text-slate-600 hover:text-[#17385E]'
@@ -115,7 +117,7 @@ export default function ChatHeader({
           <button
             type="button"
             onClick={handleExitClick}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-red-600 bg-slate-100 hover:bg-red-50 border border-slate-200/80 hover:border-red-200 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-red-600 bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-colors cursor-pointer"
             title="Exit Interview"
           >
             <span>Exit</span>

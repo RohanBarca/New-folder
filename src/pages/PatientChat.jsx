@@ -425,7 +425,6 @@ export default function PatientChat() {
     <div className="min-h-screen flex flex-col bg-[#F8FBFC] text-[#17385E] selection:bg-[#18A6A1] selection:text-white relative overflow-hidden">
       
       {/* Soft background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-b from-[#18A6A1]/10 via-[#EAFafa]/40 to-transparent rounded-full blur-3xl -z-10 pointer-events-none" />
 
       {/* ── Top Header Bar ── */}
       <ChatHeader
@@ -462,7 +461,7 @@ export default function PatientChat() {
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAFafa] border border-[#18A6A1]/30 text-xs font-bold text-[#18A6A1]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Powered by Groq AI</span>
+                  <span>Powered by MedSync AI</span>
                 </span>
                 {patientId && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
@@ -520,7 +519,7 @@ export default function PatientChat() {
             <button
               type="button"
               onClick={handleStartInterview}
-              className="w-full inline-flex items-center justify-center gap-2.5 py-4 px-8 rounded-full text-base font-bold text-white bg-gradient-to-r from-[#18A6A1] to-[#1a8fa8] hover:from-[#148F8B] hover:to-[#177a92] shadow-lg shadow-[#18A6A1]/30 hover:shadow-xl transition-all cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2.5 py-4 px-8 rounded-lg text-base font-bold text-white bg-[#137C8B] hover:bg-[#0D6471] shadow-sm transition-colors cursor-pointer"
             >
               <span>{selectedLanguage === 'hi' ? 'परामर्श शुरू करें' : 'Start Interview'}</span>
               <ArrowRight className="w-5 h-5" />
@@ -621,7 +620,7 @@ export default function PatientChat() {
 
         {/* ── 3. BOTTOM CONTROLS & INPUT ── */}
         {interviewStarted && !isComplete && (
-          <div className="pt-3 pb-2 sticky bottom-0 bg-[#F8FBFC]/90 backdrop-blur-md border-t border-slate-200/60 mt-2 space-y-2">
+          <div className="pt-3 pb-2 sticky bottom-0 bg-[#F8FBFC] border-t border-slate-200 mt-2 space-y-2">
             
             {/* Quick Answer Buttons */}
             {activeQuickReplies && (

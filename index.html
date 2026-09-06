@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MedSync — Your Medical History, Organized by AI</title>
     <meta name="description" content="MedSync is an AI-assisted medical history platform that helps patients organize records, fill missing details, and prepare structured summaries for doctors." />
+
+    <script>
+      (() => {
+        const savedTheme = window.localStorage.getItem('medsync-theme');
+        document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light';
+      })();
+    </script>
     
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

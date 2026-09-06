@@ -7,7 +7,7 @@ export default function CTA() {
     <section className="py-20 md:py-28 bg-[#F8FBFC] relative">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="relative bg-gradient-to-br from-[#18A6A1] to-[#148F8B] rounded-3xl p-8 sm:p-14 text-white text-center shadow-soft-lg overflow-hidden">
+        <div className="relative bg-[#137C8B] rounded-xl p-8 sm:p-14 text-white text-center shadow-sm overflow-hidden">
           
           {/* Subtle Decorative Rings */}
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white/10 blur-xl pointer-events-none" />
@@ -15,7 +15,7 @@ export default function CTA() {
 
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
             
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-white border border-white/30">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/10 text-xs font-bold text-white border border-white/30">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Ready in less than 3 minutes</span>
             </div>

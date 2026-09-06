@@ -24,7 +24,9 @@ import {
   CheckCircle2,
   Clock,
   Printer,
-  Edit3
+  Edit3,
+  CreditCard,
+  Check
 } from 'lucide-react';
 
 export default function PatientRecordView() {
@@ -35,6 +37,7 @@ export default function PatientRecordView() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('clinical_history'); // 'clinical_history' | 'investigations' | 'documents' | 'ayush' | 'ai_summary'
   const [errorMessage, setErrorMessage] = useState('');
+  const [insurance, setInsurance] = useState(null);
 
   // Load patient clinical record
   const fetchPatientData = async () => {
@@ -44,6 +47,15 @@ export default function PatientRecordView() {
       const response = await doctorService.getPatientRecord(patientId);
       if (response.success && response.data) {
         setPatient(response.data);
+        try {
+          const insuranceKeys = [response.data.id, response.data.patient_id, patientId].filter(Boolean);
+          const storedInsurance = insuranceKeys
+            .map((id) => localStorage.getItem(`medsync-insurance-${id}`))
+            .find(Boolean);
+          setInsurance(storedInsurance ? JSON.parse(storedInsurance) : null);
+        } catch {
+          setInsurance(null);
+        }
       } else {
         setErrorMessage(response.error || "Patient record not found.");
       }
@@ -53,6 +65,20 @@ export default function PatientRecordView() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerifyInsurance = () => {
+    if (!insurance) return;
+    const verifiedInsurance = {
+      ...insurance,
+      status: 'verified',
+      verifiedBy: 'Dr. Ananya Ray, MD',
+      verifiedAt: new Date().toISOString(),
+    };
+    [patient.id, patient.patient_id, patientId].filter(Boolean).forEach((id) => {
+      localStorage.setItem(`medsync-insurance-${id}`, JSON.stringify(verifiedInsurance));
+    });
+    setInsurance(verifiedInsurance);
   };
 
   useEffect(() => {
@@ -289,7 +315,61 @@ export default function PatientRecordView() {
 
           </div>
 
-          {/* ── 2. PROMINENT RED FLAG SECTION ── */}
+          {/* ── 2. INSURANCE REVIEW ── */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft-sm">
+            <div className="mb-4 flex items-start justify-between gap-4 border-b border-slate-200/80 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EAF5F6] text-[#137C8B]">
+                  <CreditCard className="h-4 w-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#17385E]">Insurance information</h2>
+                  <p className="text-xs text-slate-500">Patient-submitted details for administrative review</p>
+                </div>
+              </div>
+              {insurance?.status === 'verified' ? (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">
+                  <Check className="h-3.5 w-3.5" /> Verified
+                </span>
+              ) : insurance?.status === 'submitted' ? (
+                <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800">Needs review</span>
+              ) : null}
+            </div>
+
+            {!insurance || insurance.status === 'not_submitted' ? (
+              <p className="text-sm text-slate-500">The patient has not added insurance information.</p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+                  {[
+                    ['Provider', insurance.provider],
+                    ['Plan', insurance.planName],
+                    ['Policy number', insurance.policyNumber],
+                    ['Member ID', insurance.memberId],
+                    ['Expiry date', insurance.expiryDate || 'Not provided'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
+                      <p className="mt-1 truncate text-sm font-bold text-[#17385E]">{value || 'Not provided'}</p>
+                    </div>
+                  ))}
+                </div>
+                {insurance.status !== 'verified' && (
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                    <p className="text-xs text-slate-500">Verify these details against the patient’s insurance document or provider record before relying on them.</p>
+                    <button type="button" onClick={handleVerifyInsurance} className="inline-flex items-center gap-2 rounded-lg bg-[#137C8B] px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-[#0D6471]">
+                      <Check className="h-4 w-4" /> Mark insurance as verified
+                    </button>
+                  </div>
+                )}
+                {insurance.status === 'verified' && (
+                  <p className="mt-4 text-xs text-emerald-700">Verified by {insurance.verifiedBy || 'physician'} on {insurance.verifiedAt ? new Date(insurance.verifiedAt).toLocaleDateString('en-IN') : '—'}.</p>
+                )}
+              </>
+            )}
+          </section>
+
+          {/* ── 3. PROMINENT RED FLAG SECTION ── */}
           <section>
             <RedFlagBanner 
               redFlags={patient.red_flags} 

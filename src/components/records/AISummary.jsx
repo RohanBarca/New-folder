@@ -135,15 +135,13 @@ export default function AISummary({ summary, onReset, onChatWithAI }) {
     <div className="space-y-5 text-left animate-fadeIn">
 
       {/* ── Header / Overview Banner ────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#17385E] to-[#1a4a7a] rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-soft-lg">
-        {/* Glow backdrop */}
-        <div className="absolute top-0 right-0 w-56 h-56 bg-[#18A6A1]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="bg-[#17324D] rounded-xl p-6 sm:p-8 text-white relative overflow-hidden shadow-sm">
 
         <div className="relative z-10 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18A6A1]/25 border border-[#18A6A1]/40 text-xs font-bold text-[#25C4BE]">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Groq AI Analysis Complete</span>
+              <span>AI-generated summary ready</span>
             </div>
             {document_type && (
               <span className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-white/90">
@@ -153,7 +151,7 @@ export default function AISummary({ summary, onReset, onChatWithAI }) {
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
-            AI Patient Clinical Summary
+            AI-generated patient summary
           </h2>
 
           {/* Patient Overview section */}

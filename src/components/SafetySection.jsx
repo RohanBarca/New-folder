@@ -3,11 +3,11 @@ import { ShieldCheck, HeartHandshake, FileSearch, UserCheck, AlertTriangle } fro
 
 export default function SafetySection() {
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-b from-white to-[#F8FBFC] border-y border-slate-200/80 relative">
+    <section className="py-16 md:py-20 bg-white border-y border-slate-200/80 relative">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Card */}
-        <div className="bg-gradient-to-tr from-[#17385E] to-[#204975] rounded-3xl p-8 sm:p-12 text-white shadow-soft-lg relative overflow-hidden">
+        <div className="bg-[#17324D] rounded-xl p-8 sm:p-12 text-white shadow-sm relative overflow-hidden">
           
           {/* Subtle background badge shape */}
           <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-white/5 rounded-full blur-2xl pointer-events-none" />

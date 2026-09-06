@@ -12,7 +12,6 @@ export default function PatientDetails() {
     <div className="min-h-screen flex flex-col bg-[#F8FBFC] text-[#17385E] selection:bg-[#18A6A1] selection:text-white relative overflow-hidden">
       
       {/* Background Soft Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-b from-[#18A6A1]/10 via-[#EAFafa]/40 to-transparent rounded-full blur-3xl -z-10 pointer-events-none" />
 
       {/* Top Header Navigation */}
       <header className="py-6 px-4 sm:px-6 lg:px-8">

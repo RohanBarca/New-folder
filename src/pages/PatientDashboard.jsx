@@ -34,9 +34,12 @@ import {
   X,
   ChevronDown,
   ChevronUp,
+  CreditCard,
+  Save,
 } from 'lucide-react';
 import patientService from '../services/patientService';
 import authService from '../services/authService';
+import ThemeToggle from '../components/ThemeToggle';
 
 // ─── Color palette tokens (reuse existing MedSync design language) ────────────
 const TEAL = '#18A6A1';
@@ -153,7 +156,7 @@ function Badge({ label, color = TEAL }) {
 const CONSENT_TYPES = [
   { key: 'medical_history',      label: 'Medical History',      icon: ClipboardList,  purpose: 'Allow MedSync to store and process your medical history.' },
   { key: 'document_processing',  label: 'Document Processing',  icon: FileScan,       purpose: 'Allow OCR and text extraction from your uploaded records.' },
-  { key: 'ai_processing',        label: 'AI Processing',        icon: Sparkles,       purpose: 'Allow Groq AI to analyze your information and generate summaries.' },
+  { key: 'ai_processing',        label: 'AI Processing',        icon: Sparkles,       purpose: 'Allow MedSync AI to analyze your information and generate summaries.' },
   { key: 'doctor_access',        label: 'Doctor Access',        icon: User,           purpose: 'Allow authorized doctors to view your health profile.' },
   { key: 'voice_processing',     label: 'Voice Processing',     icon: HeartPulse,     purpose: 'Allow voice-based AI health interview capabilities.' },
   { key: 'abdm_sharing',         label: 'ABDM Sharing',         icon: Globe,          purpose: 'Allow record exchange via Ayushman Bharat Digital Mission gateway.' },
@@ -163,6 +166,7 @@ const CONSENT_TYPES = [
 const NAV_ITEMS = [
   { id: 'welcome',   label: 'Dashboard',       icon: LayoutDashboard },
   { id: 'profile',   label: 'My Profile',      icon: User },
+  { id: 'insurance', label: 'Insurance',       icon: CreditCard },
   { id: 'records',   label: 'Medical Records', icon: FileText },
   { id: 'interview', label: 'Health History',  icon: MessageSquareHeart },
   { id: 'summary',   label: 'AI Summary',      icon: Sparkles },
@@ -197,6 +201,27 @@ export default function PatientDashboard() {
   const [consentLoading, setConsentLoading] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showFullSummary, setShowFullSummary] = useState(false);
+  const [insurance, setInsurance] = useState(() => {
+    const storedPatientId = sessionStorage.getItem('medsync_patient_id') || '';
+    try {
+      return JSON.parse(localStorage.getItem(`medsync-insurance-${storedPatientId}`)) || {
+        provider: '', policyNumber: '', memberId: '', planName: '', expiryDate: '', status: 'not_submitted', verifiedBy: '', verifiedAt: '',
+      };
+    } catch {
+      return { provider: '', policyNumber: '', memberId: '', planName: '', expiryDate: '', status: 'not_submitted', verifiedBy: '', verifiedAt: '' };
+    }
+  });
+
+  const updateInsurance = (field, value) => {
+    setInsurance((current) => ({ ...current, [field]: value, status: current.status === 'verified' ? 'verified' : 'draft' }));
+  };
+
+  const saveInsurance = () => {
+    if (!patientId) return;
+    const nextInsurance = { ...insurance, status: 'submitted', submittedAt: new Date().toISOString() };
+    localStorage.setItem(`medsync-insurance-${patientId}`, JSON.stringify(nextInsurance));
+    setInsurance(nextInsurance);
+  };
 
   // ── Redirect if no session ───────────────────────────────────────────────
   useEffect(() => {
@@ -390,7 +415,7 @@ export default function PatientDashboard() {
             </button>
 
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#18A6A1] to-[#25C4BE] flex items-center justify-center shadow-md shadow-[#18A6A1]/20 group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-lg bg-[#137C8B] flex items-center justify-center">
                 <Activity className="w-4 h-4 text-white stroke-[2.5]" />
               </div>
               <span className="text-base font-extrabold tracking-tight text-[#17385E]">
@@ -410,6 +435,7 @@ export default function PatientDashboard() {
 
           {/* Right: Notifications + Avatar + Logout */}
           <div className="flex items-center gap-2">
+            <ThemeToggle compact />
             {notifications.length > 0 && (
               <div className="relative">
                 <Bell className="w-5 h-5 text-slate-400" />
@@ -418,7 +444,7 @@ export default function PatientDashboard() {
             )}
 
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#18A6A1] to-[#25C4BE] flex items-center justify-center text-white text-xs font-extrabold shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-[#137C8B] flex items-center justify-center text-white text-xs font-extrabold">
                 {(patientName || profile?.name || 'P')[0].toUpperCase()}
               </div>
               <span className="hidden md:block text-sm font-semibold text-[#17385E] max-w-[140px] truncate">
@@ -523,10 +549,7 @@ export default function PatientDashboard() {
 
           {/* ── 1. Welcome Hero ──────────────────────────────────────────── */}
           <section id="dash-section-welcome">
-            <div className="bg-gradient-to-br from-[#17385E] to-[#1a4a72] rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
-              {/* Decorative blobs */}
-              <div className="absolute -top-8 -right-8 w-40 h-40 bg-[#18A6A1]/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-[#25C4BE]/10 rounded-full blur-xl pointer-events-none" />
+            <div className="bg-[#17324D] rounded-xl p-6 sm:p-8 text-white relative overflow-hidden">
 
               <div className="relative">
                 <p className="text-sm font-semibold text-[#25C4BE] mb-1">
@@ -558,7 +581,7 @@ export default function PatientDashboard() {
                 <div className="flex flex-wrap gap-3">
                   <Link
                     to="/patient/chat"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-[#18A6A1] hover:bg-[#14908c] transition-all shadow-lg shadow-[#18A6A1]/30"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-[#137C8B] hover:bg-[#0D6471] transition-colors"
                   >
                     <MessageSquareHeart className="w-4 h-4" />
                     AI Health Interview
@@ -703,7 +726,53 @@ export default function PatientDashboard() {
             )}
           </SectionCard>
 
-          {/* ── 3. Consultation Status ────────────────────────────────────── */}
+          {/* ── 3. Insurance Information ────────────────────────────────── */}
+          <SectionCard id="dash-section-insurance" title="Insurance Information" icon={CreditCard} iconColor="#137c8b">
+            <div className="space-y-4">
+              <div className={`flex items-start gap-3 rounded-xl border p-3 ${insurance.status === 'verified' ? 'bg-emerald-50 border-emerald-200' : insurance.status === 'submitted' ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'}`}>
+                {insurance.status === 'verified' ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#137c8b]" />}
+                <div>
+                  <p className="text-xs font-bold text-[#17385E]">
+                    {insurance.status === 'verified' ? 'Insurance verified by physician' : insurance.status === 'submitted' ? 'Submitted for physician verification' : 'Add your insurance details for review'}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {insurance.status === 'verified' ? `Verified by ${insurance.verifiedBy || 'your physician'}.` : 'This information is patient-submitted and is not verified until a doctor reviews it.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {[
+                  ['provider', 'Insurance provider', 'e.g. Star Health'],
+                  ['planName', 'Plan name', 'e.g. Family Health Optima'],
+                  ['policyNumber', 'Policy number', 'Enter policy number'],
+                  ['memberId', 'Member / beneficiary ID', 'Enter member ID'],
+                  ['expiryDate', 'Policy expiry date', ''],
+                ].map(([field, label, placeholder]) => (
+                  <label key={field} className="block text-xs font-bold text-[#17385E]">
+                    {label}
+                    <input
+                      type={field === 'expiryDate' ? 'date' : 'text'}
+                      value={insurance[field] || ''}
+                      onChange={(event) => updateInsurance(field, event.target.value)}
+                      placeholder={placeholder}
+                      className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-[#17385E] outline-none transition focus:border-[#137c8b] focus:ring-2 focus:ring-[#137c8b]/20"
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                <p className="text-xs text-slate-400">Only share details you are comfortable having reviewed by your care team.</p>
+                <button type="button" onClick={saveInsurance} className="inline-flex items-center gap-2 rounded-lg bg-[#137c8b] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0d6471]">
+                  <Save className="h-4 w-4" />
+                  Save for physician review
+                </button>
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* ── 4. Consultation Status ────────────────────────────────────── */}
           <SectionCard id="dash-section-status" title="Consultation Status" icon={HeartPulse} iconColor="#6366f1">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: `${status.color}18` }}>

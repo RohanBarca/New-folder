@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   ChevronRight
 } from 'lucide-react';
+import ThemeToggle from '../ThemeToggle';
 
 export default function DoctorHeader({ 
   title = "Physician Dashboard", 
@@ -51,7 +52,7 @@ export default function DoctorHeader({
             <h1 className="text-lg sm:text-xl font-extrabold text-[#17385E] tracking-tight">
               {title}
             </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EAFafa] border border-[#18A6A1]/30 text-[10px] font-bold text-[#18A6A1]">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#EAF5F6] border border-[#B8D9DD] text-[10px] font-bold text-[#137C8B]">
               <Sparkles className="w-3 h-3" />
               <span>AI Assisted</span>
             </span>
@@ -64,6 +65,7 @@ export default function DoctorHeader({
 
         {/* Right: Search + Date + Action */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+          <ThemeToggle compact />
           
           {/* Quick Search */}
           {showSearch && onSearchChange && (
@@ -74,13 +76,13 @@ export default function DoctorHeader({
                 value={searchValue}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search patient or ID..."
-                className="w-full py-2 pl-9 pr-4 rounded-full bg-slate-100 focus:bg-white text-xs font-semibold text-[#17385E] placeholder-slate-400 border border-slate-200 focus:border-[#18A6A1] focus:ring-4 focus:ring-[#18A6A1]/15 transition-all outline-none"
+                className="w-full py-2 pl-9 pr-4 rounded-lg bg-slate-100 focus:bg-white text-xs font-semibold text-[#17385E] placeholder-slate-400 border border-slate-200 focus:border-[#137C8B] focus:ring-2 focus:ring-[#137C8B]/20 transition-colors outline-none"
               />
             </div>
           )}
 
           {/* Current Date Widget */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-[#17385E]">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-[#17385E]">
             <Calendar className="w-3.5 h-3.5 text-[#18A6A1]" />
             <span>{currentDate}</span>
           </div>
@@ -88,7 +90,7 @@ export default function DoctorHeader({
           {/* Patient App Switcher */}
           <Link
             to="/patient/entry"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-[#18A6A1] to-[#1a8fa8] hover:from-[#148F8B] hover:to-[#177a92] shadow-xs hover:shadow-md transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#137C8B] hover:bg-[#0D6471] transition-colors cursor-pointer"
           >
             <Stethoscope className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">New Patient Intake</span>

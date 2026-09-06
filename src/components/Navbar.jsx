@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Menu, X, ArrowRight } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -27,26 +28,20 @@ export default function Navbar() {
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'glass-nav py-3.5 shadow-soft border-b border-[#18A6A1]/15'
-          : 'bg-transparent py-5'
-      }`}
-    >
+    <header className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 transition-all duration-200 ${isScrolled ? 'py-3 shadow-sm' : 'py-4'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#18A6A1] to-[#25C4BE] flex items-center justify-center shadow-md shadow-[#18A6A1]/20 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-10 h-10 rounded-lg bg-[#137C8B] flex items-center justify-center">
               <Activity className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
             <div className="flex items-baseline">
-              <span className="text-2xl font-extrabold tracking-tight text-[#17385E]">
+              <span className="text-xl font-bold tracking-tight text-[#17385E]">
                 Med<span className="text-[#18A6A1]">Sync</span>
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#18A6A1] ml-0.5"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#137C8B] ml-0.5"></span>
             </div>
           </Link>
 
@@ -65,21 +60,22 @@ export default function Navbar() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle compact />
             <Link
               to="/doctor/dashboard"
-              className="px-3.5 py-2 rounded-full text-xs font-bold text-[#18A6A1] hover:text-[#148F8B] bg-[#EAFafa] hover:bg-[#18A6A1]/20 border border-[#18A6A1]/30 transition-all duration-200 cursor-pointer"
+              className="px-3.5 py-2 rounded-lg text-xs font-bold text-[#137C8B] hover:text-[#0D6471] bg-[#EAF5F6] hover:bg-[#DCEFF1] border border-[#B8D9DD] transition-colors cursor-pointer"
             >
               Doctor Portal
             </Link>
             <Link
               to="/patient/entry"
-              className="px-5 py-2.5 rounded-full text-sm font-semibold text-[#17385E] hover:text-[#18A6A1] border border-[#CBD5E1] hover:border-[#18A6A1] bg-white/70 hover:bg-[#EAFafa]/50 transition-all duration-200 cursor-pointer"
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#17385E] hover:text-[#137C8B] border border-[#CBD5E1] hover:border-[#137C8B] bg-white transition-colors cursor-pointer"
             >
               Log In
             </Link>
             <Link
               to="/patient/entry"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-[#18A6A1] hover:bg-[#148F8B] shadow-sm hover:shadow-teal-glow transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#137C8B] hover:bg-[#0D6471] transition-colors cursor-pointer"
             >
               Get Started
               <ArrowRight className="w-4 h-4" />
@@ -87,7 +83,8 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Hamburger Button */}
-          <div className="flex md:hidden">
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle compact />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-xl text-[#17385E] hover:bg-[#EAFafa] transition-colors"
@@ -104,7 +101,7 @@ export default function Navbar() {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 pb-6 px-4 bg-white/95 backdrop-blur-xl rounded-2xl border border-[#18A6A1]/20 shadow-soft-lg space-y-3 animate-fadeIn">
+          <div className="md:hidden mt-4 pt-4 pb-6 px-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-3 animate-fadeIn">
             {navLinks.map((link) => (
               <a
                 key={link.name}

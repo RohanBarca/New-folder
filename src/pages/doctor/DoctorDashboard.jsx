@@ -110,11 +110,11 @@ export default function DoctorDashboard() {
         <main className="flex-1 p-4 sm:p-8 space-y-5 sm:space-y-6 max-w-7xl w-full mx-auto">
           
           {/* Welcome & Live Status Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-[#17385E] via-[#1a4b7c] to-[#18A6A1] text-white shadow-soft-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#17324D] text-white shadow-sm">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-[#25C4BE] bg-white/10 px-2.5 py-0.5 rounded-full backdrop-blur-xs">
-                  MedSync Clinical AI
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#9BD8D7] bg-white/10 px-2.5 py-0.5 rounded-lg">
+                  MedSync Clinical Workspace
                 </span>
                   <span className="text-xs text-white/80">• OPD Session Active</span>
               </div>
@@ -130,7 +130,7 @@ export default function DoctorDashboard() {
               <button
                 type="button"
                 onClick={loadDashboardData}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold text-[#17385E] bg-white hover:bg-slate-100 shadow-sm transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold text-[#17385E] bg-white hover:bg-slate-100 transition-colors cursor-pointer"
                 title="Refresh Records"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />

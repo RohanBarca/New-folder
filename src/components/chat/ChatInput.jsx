@@ -140,7 +140,7 @@ export default function ChatInput({ onSend, onLanguageDetected, disabled, isTypi
             type="button"
             onClick={handleToggleRecording}
             disabled={disabled || isTyping || isTranscribing}
-            className={`relative w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-md disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center shrink-0 transition-colors cursor-pointer shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
               isRecording
                 ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/30 animate-pulse ring-4 ring-red-300/50 scale-105'
                 : 'bg-slate-100 hover:bg-[#EAFafa] text-slate-700 hover:text-[#18A6A1] border border-slate-200/80 hover:border-[#18A6A1]/40'
@@ -177,7 +177,7 @@ export default function ChatInput({ onSend, onLanguageDetected, disabled, isTypi
           onKeyDown={handleKeyDown}
           disabled={disabled || isTyping}
           placeholder={getPlaceholder()}
-          className={`flex-1 py-3.5 px-5 rounded-full text-sm font-medium placeholder-slate-400 transition-all outline-none disabled:opacity-60 disabled:cursor-not-allowed ${
+          className={`flex-1 py-3.5 px-4 rounded-lg text-sm font-medium placeholder-slate-400 transition-colors outline-none disabled:opacity-60 disabled:cursor-not-allowed ${
             isRecording
               ? 'bg-red-50/60 border-2 border-red-400 text-[#17385E] ring-4 ring-red-100'
               : 'bg-slate-100 focus:bg-white text-[#17385E] border border-slate-200 focus:border-[#18A6A1] focus:ring-4 focus:ring-[#18A6A1]/15'
@@ -188,7 +188,7 @@ export default function ChatInput({ onSend, onLanguageDetected, disabled, isTypi
         <button
           type="submit"
           disabled={!text.trim() || disabled || isTyping || isRecording || isTranscribing}
-          className="w-12 h-12 rounded-full bg-gradient-to-r from-[#18A6A1] to-[#1a8fa8] hover:from-[#148F8B] hover:to-[#177a92] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#18A6A1]/25 hover:shadow-lg transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+          className="w-12 h-12 rounded-lg bg-[#137C8B] hover:bg-[#0D6471] text-white flex items-center justify-center shrink-0 shadow-sm transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
           title={selectedLanguage === 'hi' ? 'उत्तर भेजें' : 'Send Answer'}
         >
           {isTyping ? (

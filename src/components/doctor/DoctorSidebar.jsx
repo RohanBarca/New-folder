@@ -87,7 +87,7 @@ export default function DoctorSidebar({ redFlagsCount = 0 }) {
       <div className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200/80 shadow-2xs">
         <div className="px-4 py-3 flex items-center justify-between gap-3">
           <Link to="/doctor/dashboard" className="flex items-center gap-2 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#18A6A1] to-[#25C4BE] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#137C8B] flex items-center justify-center shrink-0">
               <Activity className="w-4 h-4 text-white stroke-[2.5]" />
             </div>
             <div className="min-w-0">
@@ -116,7 +116,7 @@ export default function DoctorSidebar({ redFlagsCount = 0 }) {
         {/* Brand Logo */}
         <div className="p-5 border-b border-slate-200/80 flex items-center justify-between">
           <Link to="/doctor/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#18A6A1] to-[#25C4BE] flex items-center justify-center shadow-md shadow-[#18A6A1]/20 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-[#137C8B] flex items-center justify-center">
               <Activity className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
             <div>
@@ -151,7 +151,7 @@ export default function DoctorSidebar({ redFlagsCount = 0 }) {
         {/* Doctor Profile Card */}
         <div className="p-2.5 rounded-2xl bg-white border border-slate-200 flex items-center justify-between gap-2 shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#17385E] to-[#1a8fa8] text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs">
+            <div className="w-8 h-8 rounded-full bg-[#17324D] text-white font-extrabold text-xs flex items-center justify-center shrink-0">
               AR
             </div>
             <div className="min-w-0">
