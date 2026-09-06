@@ -1,0 +1,1 @@
+"""Static reference data bundled with the MedSync backend."""

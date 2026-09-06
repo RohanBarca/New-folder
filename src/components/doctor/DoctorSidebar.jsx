@@ -108,7 +108,7 @@ export default function DoctorSidebar({ redFlagsCount = 0 }) {
         </div>
       </div>
 
-      <aside className="hidden md:flex md:w-64 bg-white border-r border-slate-200/80 min-h-screen flex-col justify-between shrink-0 shadow-xs">
+      <aside className="hidden md:flex md:sticky md:top-0 md:h-screen md:self-start md:w-64 bg-white border-r border-slate-200/80 flex-col justify-between shrink-0 shadow-xs">
       
       {/* Top Branding & Navigation */}
       <div>

@@ -11,6 +11,7 @@ import PatientDashboard from './pages/PatientDashboard';
 import PatientSummary from './pages/PatientSummary';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import PatientRecordView from './pages/doctor/PatientRecordView';
+import DatasetPatientRecordView from './pages/doctor/DatasetPatientRecordView';
 import DoctorLogin, { isDoctorAuthenticated } from './pages/doctor/DoctorLogin';
 
 function DoctorRoute({ children }) {
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/doctor/login" element={<DoctorLogin />} />
         <Route path="/doctor/dashboard" element={<DoctorRoute><DoctorDashboard /></DoctorRoute>} />
         <Route path="/doctor/patient/:patientId" element={<DoctorRoute><PatientRecordView /></DoctorRoute>} />
+        <Route path="/doctor/reference-patient/:patientId" element={<DoctorRoute><DatasetPatientRecordView /></DoctorRoute>} />
 
         {/* Catch-all redirect to Home */}
         <Route path="*" element={<Navigate to="/" replace />} />

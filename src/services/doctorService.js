@@ -671,6 +671,44 @@ async function backendIsAvailable() {
 }
 
 const doctorService = {
+  async getDatasetPatients() {
+    try {
+      const response = await fetch(`${API_BASE}/api/dataset/patients`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('Unable to load clinical reference data.');
+      const data = await response.json();
+      return { success: true, data: data.patients || [] };
+    } catch (error) {
+      return { success: false, error: error.message || 'Unable to load clinical reference data.', data: [] };
+    }
+  },
+
+  async getDatasetPatient(patientId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/dataset/patients/${encodeURIComponent(patientId)}`, { cache: 'no-store' });
+      if (response.status === 404) {
+        return { success: false, error: 'Reference record not found.' };
+      }
+      if (!response.ok) throw new Error('Unable to load clinical reference data.');
+      return { success: true, data: await response.json() };
+    } catch (error) {
+      return { success: false, error: error.message || 'Unable to load clinical reference data.' };
+    }
+  },
+
+  async summarizeDatasetPatient(patientId) {
+    try {
+      const response = await fetch(`${API_BASE}/api/dataset/patients/${encodeURIComponent(patientId)}/ai-summary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Unable to generate the AI reference summary.');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message || 'Unable to generate the AI reference summary.' };
+    }
+  },
+
   /**
    * Retrieves dashboard summary metrics
    */

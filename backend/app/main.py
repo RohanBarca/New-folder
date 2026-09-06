@@ -13,6 +13,7 @@ from .api.abdm import router as abdm_router
 from .api.voice import router as voice_router
 from .api.asr import router as asr_router
 from .api.auth import router as auth_router
+from .api.dataset import router as dataset_router
 from .database import check_db_connection, init_db
 
 
@@ -77,6 +78,7 @@ app.include_router(fhir_router)
 app.include_router(abdm_router)
 app.include_router(voice_router)
 app.include_router(asr_router)
+app.include_router(dataset_router)
 
 
 @app.get("/api/health")

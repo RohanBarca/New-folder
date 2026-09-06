@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import DoctorSidebar from '../../components/doctor/DoctorSidebar';
 import DoctorHeader from '../../components/doctor/DoctorHeader';
 import DoctorStatsCards from '../../components/doctor/DoctorStatsCards';
@@ -12,7 +12,8 @@ import {
   Sparkles, 
   Stethoscope, 
   Activity,
-  FileCheck
+  FileCheck,
+  Eye
 } from 'lucide-react';
 
 export default function DoctorDashboard() {
@@ -28,6 +29,8 @@ export default function DoctorDashboard() {
   });
 
   const [patients, setPatients] = useState([]);
+  const [datasetPatients, setDatasetPatients] = useState([]);
+  const [datasetError, setDatasetError] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -47,18 +50,25 @@ export default function DoctorDashboard() {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [statsRes, patientsRes] = await Promise.all([
+      const [statsRes, patientsRes, datasetRes] = await Promise.all([
         doctorService.getDashboardStats(),
         doctorService.getPatients({
           search: searchQuery,
           status: statusFilter,
           hasRedFlag: redFlagFilter,
           sortBy: sortBy
-        })
+        }),
+        doctorService.getDatasetPatients(),
       ]);
 
       if (statsRes.success) setStats(statsRes.data);
       if (patientsRes.success) setPatients(patientsRes.data);
+      if (datasetRes.success) {
+        setDatasetPatients(datasetRes.data);
+        setDatasetError('');
+      } else {
+        setDatasetError(datasetRes.error);
+      }
     } catch (err) {
       console.error("Failed to load doctor dashboard data:", err);
     } finally {
@@ -192,6 +202,65 @@ export default function DoctorDashboard() {
               sortBy={sortBy}
               onSortByChange={setSortBy}
             />
+          </section>
+
+          <section className="space-y-3 pt-2" aria-labelledby="kaggle-demo-patients-heading">
+            <div className="flex items-center justify-between px-1">
+              <div>
+                <h3 id="kaggle-demo-patients-heading" className="text-sm font-extrabold text-[#17385E] tracking-tight">
+                  Kaggle Demo Patients
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Clinical reference data only. These records are not registered MedSync patients.
+                </p>
+              </div>
+              <span className="text-[11px] font-bold text-[#18A6A1] bg-[#EAFafa] px-2.5 py-1 rounded-full">
+                {datasetPatients.length} reference records
+              </span>
+            </div>
+
+            {datasetError ? (
+              <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-sm text-amber-800">{datasetError}</div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                <table className="min-w-full text-left text-xs">
+                  <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500">
+                    <tr>
+                      <th className="px-4 py-3 font-extrabold">Reference ID</th>
+                      <th className="px-4 py-3 font-extrabold">Age / Gender</th>
+                      <th className="px-4 py-3 font-extrabold">Disease</th>
+                      <th className="px-4 py-3 font-extrabold">Symptoms</th>
+                      <th className="px-4 py-3 font-extrabold">BP</th>
+                      <th className="px-4 py-3 font-extrabold">Cholesterol</th>
+                      <th className="px-4 py-3 font-extrabold">Outcome</th>
+                      <th className="px-4 py-3 font-extrabold text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {datasetPatients.map((patient) => (
+                      <tr key={patient.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-3 font-bold text-[#17385E]">{patient.reference_id}</td>
+                        <td className="px-4 py-3 text-slate-600">{patient.age} / {patient.gender}</td>
+                        <td className="px-4 py-3 font-semibold text-[#17385E]">{patient.disease}</td>
+                        <td className="px-4 py-3 text-slate-600">{Object.entries(patient.symptoms).filter(([, value]) => value === 'Yes').map(([key]) => key.replaceAll('_', ' ')).join(', ') || 'None recorded'}</td>
+                        <td className="px-4 py-3 text-slate-600">{patient.blood_pressure}</td>
+                        <td className="px-4 py-3 text-slate-600">{patient.cholesterol_level}</td>
+                        <td className="px-4 py-3 font-semibold text-slate-600">{patient.outcome}</td>
+                        <td className="px-4 py-3 text-right">
+                          <Link
+                            to={`/doctor/reference-patient/${patient.id}`}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#18A6A1]/30 bg-[#EAFafa] px-3 py-1.5 text-[11px] font-bold text-[#18A6A1] transition-colors hover:bg-[#18A6A1] hover:text-white"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            View reference
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
 
         </main>
