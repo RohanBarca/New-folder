@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Activity,
@@ -14,64 +14,18 @@ import {
   Lock,
 } from 'lucide-react';
 import authService from '../services/authService';
-import { resetRecaptcha, sendOTP, setupRecaptcha, verifyOTP } from '../services/firebaseAuthService';
 
 const OTP_RESEND_COOLDOWN_SECONDS = 30;
-
-function getFirebaseErrorMessage(error) {
-  switch (error?.code) {
-    case 'auth/invalid-phone-number':
-      return 'Please enter a valid Indian mobile number.';
-    case 'auth/invalid-verification-code':
-      return 'The OTP is invalid. Please check the code and try again.';
-    case 'auth/code-expired':
-      return 'This OTP has expired. Please request a new OTP.';
-    case 'auth/too-many-requests':
-      return 'Too many attempts. Please wait and try again later.';
-    case 'auth/quota-exceeded':
-      return 'OTP sending is temporarily unavailable. Please try again later.';
-    default:
-      return error?.message || 'Unable to continue. Please try again.';
-  }
-}
 
 export default function PatientLogin({ registration = false }) {
   const navigate = useNavigate();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('phone');
-  const [recaptchaVerified, setRecaptchaVerified] = useState(false);
+  const [requestId, setRequestId] = useState('');
   const [resendIn, setResendIn] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const recaptchaRef = useRef(null);
-
-  useEffect(() => {
-    if (step !== 'phone') return undefined;
-
-    const renderRecaptcha = async () => {
-      try {
-        recaptchaRef.current = setupRecaptcha('recaptcha-container', {
-          onVerified: () => setRecaptchaVerified(true),
-          onExpired: () => {
-            setRecaptchaVerified(false);
-            setError('The reCAPTCHA expired. Please complete it again.');
-          },
-        });
-        await recaptchaRef.current.render();
-      } catch (err) {
-        setError(getFirebaseErrorMessage(err));
-      }
-    };
-
-    renderRecaptcha();
-    return () => {
-      resetRecaptcha();
-      recaptchaRef.current = null;
-      setRecaptchaVerified(false);
-    };
-  }, [step]);
-
   useEffect(() => {
     if (!resendIn) return undefined;
     const timer = window.setInterval(() => {
@@ -84,7 +38,6 @@ export default function PatientLogin({ registration = false }) {
   const handlePhoneChange = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
     setPhone(val);
-    setRecaptchaVerified(false);
     setError('');
   };
 
@@ -100,12 +53,17 @@ export default function PatientLogin({ registration = false }) {
     setLoading(true);
 
     try {
-      await sendOTP(`+91${phone}`);
+      const response = await authService.sendMobileOtp(`+91${phone}`);
+      if (!response.success) {
+        setError(response.error || 'Unable to send OTP. Please try again.');
+        return;
+      }
+      setRequestId(response.request_id || '');
       setOtp('');
       setStep('otp');
       setResendIn(OTP_RESEND_COOLDOWN_SECONDS);
-    } catch (err) {
-      setError(getFirebaseErrorMessage(err));
+    } catch {
+      setError('Unable to send OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -121,15 +79,14 @@ export default function PatientLogin({ registration = false }) {
 
     setLoading(true);
     try {
-      await verifyOTP(otp);
-      const res = await authService.loginWithPhone(`+91${phone}`);
+      const res = await authService.verifyMobileOtp(`+91${phone}`, otp, requestId);
       if (!res.success) {
         setError(res.error || 'Unable to connect your MedSync account.');
         return;
       }
       navigate(registration ? '/patient/register/details' : '/patient/dashboard');
-    } catch (err) {
-      setError(getFirebaseErrorMessage(err));
+    } catch {
+      setError('Unable to verify OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -138,12 +95,14 @@ export default function PatientLogin({ registration = false }) {
   const changePhone = () => {
     setError('');
     setOtp('');
+    setRequestId('');
     setResendIn(0);
     setStep('phone');
   };
 
-  const handleResend = () => {
-    if (!resendIn) changePhone();
+  const handleResend = async () => {
+    if (resendIn || loading) return;
+    await handleSendOtp();
   };
 
   return (
@@ -223,18 +182,14 @@ export default function PatientLogin({ registration = false }) {
                 />
               </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  A one-time password will be sent after you verify that you are human.
+                  A one-time password will be sent securely to this number.
                 </p>
-              </div>
-
-              <div className="flex justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3 min-h-[78px]">
-                <div id="recaptcha-container" />
               </div>
 
               <button
                 id="send-otp-btn"
                 type="submit"
-                disabled={loading || phone.length !== 10 || !recaptchaVerified}
+                disabled={loading || phone.length !== 10}
                 className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-base font-bold text-white bg-[#18A6A1] hover:bg-[#148F8B] shadow-md shadow-[#18A6A1]/20 hover:shadow-teal-glow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Sending OTP...</span></> : <><span>Send OTP</span><ArrowRight className="w-4 h-4" /></>}

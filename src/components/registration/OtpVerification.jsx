@@ -117,9 +117,9 @@ export default function OtpVerification({ identifier, type, txnId, onOtpVerified
     }
   };
 
-  // Quick helper to fill test OTP 123456
+  // Quick helper to fill test OTP 180706
   const fillTestOtp = () => {
-    setOtp(['1', '2', '3', '4', '5', '6']);
+    setOtp(['1', '8', '0', '7', '0', '6']);
     setError('');
     inputRefs.current[5]?.focus();
   };
@@ -187,17 +187,6 @@ export default function OtpVerification({ identifier, type, txnId, onOtpVerified
               }`}
             />
           ))}
-        </div>
-
-        {/* Prototype Helper Button */}
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={fillTestOtp}
-            className="px-3 py-1 rounded-full bg-[#EAFafa] border border-[#18A6A1]/30 text-xs font-semibold text-[#18A6A1] hover:bg-[#18A6A1] hover:text-white transition-colors"
-          >
-            Fill Prototype Test OTP (123456)
-          </button>
         </div>
 
         {/* Primary CTA */}

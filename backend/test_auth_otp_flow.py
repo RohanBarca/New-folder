@@ -104,7 +104,7 @@ def test_verify_otp_invalid_and_max_attempts():
     # 6th attempt should be blocked with 429
     res_blocked = client.post(
         "/api/auth/mobile/verify-otp",
-        json={"phone": test_phone, "otp": "123456", "request_id": req_id},
+        json={"phone": test_phone, "otp": "180706", "request_id": req_id},
     )
     assert res_blocked.status_code == 429, f"Expected 429 on max attempts exceeded, got {res_blocked.status_code}"
     print("  --> PASSED: Max attempts rate-limiting correctly enforced.")
@@ -123,7 +123,7 @@ def test_successful_otp_login_and_idempotency():
     # 2. Verify OTP (mock provider accepts 123456)
     verify_res = client.post(
         "/api/auth/mobile/verify-otp",
-        json={"phone": test_phone, "otp": "123456", "request_id": req_id},
+        json={"phone": test_phone, "otp": "180706", "request_id": req_id},
     )
     assert verify_res.status_code == 200, f"Expected 200, got {verify_res.status_code}: {verify_res.text}"
     auth_data = verify_res.json()
@@ -150,7 +150,7 @@ def test_successful_otp_login_and_idempotency():
 
     verify_res_2 = client.post(
         "/api/auth/mobile/verify-otp",
-        json={"phone": test_phone, "otp": "123456", "request_id": req_id_2},
+        json={"phone": test_phone, "otp": "180706", "request_id": req_id_2},
     )
     assert verify_res_2.status_code == 200
     auth_data_2 = verify_res_2.json()
@@ -163,23 +163,11 @@ def test_successful_otp_login_and_idempotency():
     print("  --> PASSED: One verified phone = One UserAccount = One patient_id (IDEMPOTENT).")
 
 
-def test_phone_number_login_creates_and_reuses_patient():
-    print("\n[TEST 4B] Testing direct phone login without OTP...")
-    test_phone = f"+9198765{str(uuid.uuid4().int)[:5]}"
-
-    res_1 = client.post("/api/auth/mobile/login", json={"phone": test_phone})
-    assert res_1.status_code == 200, f"Expected 200, got {res_1.status_code}: {res_1.text}"
-    data_1 = res_1.json()
-    assert data_1["authenticated"] is True
-    assert "access_token" in data_1
-    patient_id_1 = data_1["user"]["patient_id"]
-
-    res_2 = client.post("/api/auth/mobile/login", json={"phone": test_phone})
-    assert res_2.status_code == 200, f"Expected 200, got {res_2.status_code}: {res_2.text}"
-    data_2 = res_2.json()
-    assert data_2["user"]["patient_id"] == patient_id_1
-    assert data_2["user"]["is_new_patient"] is False
-    print("  --> PASSED: Phone number uniquely identifies the patient without OTP.")
+def test_phone_only_login_is_not_available():
+    print("\n[TEST 4B] Confirming that phone-only login is disabled...")
+    res = client.post("/api/auth/mobile/login", json={"phone": "+919876500003"})
+    assert res.status_code == 404
+    print("  --> PASSED: authentication requires successful OTP verification.")
 
 
 def test_cross_patient_isolation():
@@ -190,7 +178,7 @@ def test_cross_patient_isolation():
     # Login Patient A
     send_a = client.post("/api/auth/mobile/send-otp", json={"phone": phone_a})
     req_id_a = send_a.json()["request_id"]
-    res_a = client.post("/api/auth/mobile/verify-otp", json={"phone": phone_a, "otp": "123456", "request_id": req_id_a})
+    res_a = client.post("/api/auth/mobile/verify-otp", json={"phone": phone_a, "otp": "180706", "request_id": req_id_a})
     assert res_a.status_code == 200, f"Patient A verify failed: {res_a.text}"
     token_a = res_a.json()["access_token"]
     patient_a_id = res_a.json()["user"]["patient_id"]
@@ -198,7 +186,7 @@ def test_cross_patient_isolation():
     # Login Patient B
     send_b = client.post("/api/auth/mobile/send-otp", json={"phone": phone_b})
     req_id_b = send_b.json()["request_id"]
-    res_b = client.post("/api/auth/mobile/verify-otp", json={"phone": phone_b, "otp": "123456", "request_id": req_id_b})
+    res_b = client.post("/api/auth/mobile/verify-otp", json={"phone": phone_b, "otp": "180706", "request_id": req_id_b})
     assert res_b.status_code == 200, f"Patient B verify failed: {res_b.text}"
     patient_b_id = res_b.json()["user"]["patient_id"]
 

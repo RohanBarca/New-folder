@@ -1,10 +1,9 @@
 /**
  * MedSync — Authentication Service (Frontend)
  * ---------------------------------------------
- * Handles Mobile Number SMS OTP Authentication via MSG91 backend.
+ * Handles Mobile Number OTP Authentication (Demo OTP: 180706).
  *
  * SECURITY:
- *  - Secrets and MSG91 API keys are NEVER exposed to the frontend.
  *  - Tokens and session identifiers are stored in sessionStorage.
  *  - Requests include Bearer tokens in Authorization headers.
  */
@@ -23,51 +22,8 @@ async function parseJsonResponse(res) {
 }
 
 export const authService = {
-  async loginWithPhone(phone) {
-    try {
-      const normalizedPhone = phone?.trim();
-      const res = await fetch(`${API_BASE}/api/auth/mobile/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: normalizedPhone }),
-      });
-
-      const data = await parseJsonResponse(res);
-      if (!res.ok) {
-        return {
-          success: false,
-          error: data.detail || 'Unable to continue with this phone number.',
-        };
-      }
-
-      if (data.access_token) sessionStorage.setItem('medsync_token', data.access_token);
-      if (data.user?.patient_id) sessionStorage.setItem('medsync_patient_id', data.user.patient_id);
-      if (data.user?.patient_name) sessionStorage.setItem('medsync_patient_name', data.user.patient_name);
-      if (data.user?.phone_masked) sessionStorage.setItem('medsync_phone_masked', data.user.phone_masked);
-
-      return {
-        success: true,
-        authenticated: true,
-        user: data.user,
-        access_token: data.access_token,
-      };
-    } catch {
-      return {
-        success: false,
-        error: 'Unable to sign in with this phone number. Please try again.',
-      };
-    }
-  },
-
-  async getMobileWidgetConfig() {
-    const res = await fetch(`${API_BASE}/api/auth/mobile/widget-config`);
-    const data = await parseJsonResponse(res);
-    if (!res.ok) throw new Error(data.detail || 'OTP widget is not configured.');
-    return data;
-  },
-
   /**
-   * Dispatches SMS OTP to an Indian mobile number via backend MSG91 integration.
+   * Dispatches OTP to an Indian mobile number.
    * @param {string} phone - 10-digit Indian phone number (or +91...)
    * @returns {Promise<{ success: boolean, request_id?: string, phone_masked?: string, message?: string, error?: string }>}
    */
@@ -153,26 +109,6 @@ export const authService = {
         success: false,
         error: 'Unable to verify OTP with server. Please try again.',
       };
-    }
-  },
-
-  async verifyMobileWidget(accessToken) {
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/mobile/verify-widget`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: accessToken }),
-      });
-      const data = await parseJsonResponse(res);
-      if (!res.ok) return { success: false, error: data.detail || 'Invalid or expired OTP.' };
-
-      if (data.access_token) sessionStorage.setItem('medsync_token', data.access_token);
-      if (data.user?.patient_id) sessionStorage.setItem('medsync_patient_id', data.user.patient_id);
-      if (data.user?.patient_name) sessionStorage.setItem('medsync_patient_name', data.user.patient_name);
-      if (data.user?.phone_masked) sessionStorage.setItem('medsync_phone_masked', data.user.phone_masked);
-      return { success: true, authenticated: true, user: data.user, access_token: data.access_token };
-    } catch {
-      return { success: false, error: 'Unable to verify OTP with server. Please try again.' };
     }
   },
 

@@ -1,17 +1,16 @@
 """
 MedSync — Authentication API Router
 -------------------------------------
-Endpoints for Mobile Number SMS OTP Authentication via MSG91.
+Endpoints for Mobile Number OTP Authentication (Demo OTP: 180706).
 
 Endpoints:
-  - POST /api/auth/mobile/send-otp   : Dispatches real SMS OTP via MSG91
-  - POST /api/auth/mobile/verify-otp : Verifies OTP, resolves/creates UserAccount + Patient, issues JWT
+  - POST /api/auth/mobile/send-otp   : Dispatches Demo OTP
+  - POST /api/auth/mobile/verify-otp : Verifies OTP (180706), resolves/creates UserAccount + Patient, issues JWT
   - GET  /api/auth/me                : Returns authenticated user identity & linked patient
   - POST /api/auth/logout            : Clears session & logs audit event
 
 SECURITY:
   - Never logs or exposes OTPs.
-  - Never exposes MSG91 credentials.
   - Enforces resend cooldown and maximum verification attempts.
   - Identity rule: ONE verified phone → ONE UserAccount → ONE patient_id.
   - Emits immutable audit logs for auth events.
@@ -29,7 +28,7 @@ from ..models.user_account import UserAccount
 from ..models.patient import Patient
 from ..core.security import get_current_user, UserContext
 from ..core.jwt import create_access_token
-from ..services.otp_service import get_otp_provider, MSG91OTPProvider
+from ..services.otp_service import get_otp_provider
 from ..services.auth_service import (
     normalize_phone,
     strip_plus,
@@ -66,64 +65,25 @@ class VerifyOtpRequest(BaseModel):
     otp: str
     request_id: Optional[str] = None
 
-
-class VerifyWidgetRequest(BaseModel):
-    access_token: str
-
-    @field_validator("access_token")
+    @field_validator("otp")
     @classmethod
-    def validate_access_token(cls, v: str) -> str:
+    def validate_otp(cls, v: str) -> str:
         clean = v.strip()
-        if not clean:
-            raise ValueError("Access token cannot be empty.")
-        return clean
-
-
-class MobileLoginRequest(BaseModel):
-    phone: str
-
-    @field_validator("phone")
-    @classmethod
-    def validate_phone_input(cls, v: str) -> str:
-        clean = v.strip()
-        if not clean:
-            raise ValueError("Phone number cannot be empty.")
+        if not clean.isdigit() or not 4 <= len(clean) <= 8:
+            raise ValueError("Enter a valid OTP.")
         return clean
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
-@router.get("/mobile/widget-config")
-async def get_mobile_widget_config():
-    provider = get_otp_provider()
-    if not isinstance(provider, MSG91OTPProvider) or not provider.widget_config():
-        raise HTTPException(status_code=503, detail="OTP widget is not configured.")
-    return provider.widget_config()
-
-
-@router.post("/mobile/verify-widget")
-async def verify_mobile_widget(payload: VerifyWidgetRequest, db: Session = Depends(get_db)):
-    provider = get_otp_provider()
-    if not isinstance(provider, MSG91OTPProvider):
-        raise HTTPException(status_code=503, detail="OTP widget is not configured.")
-    verified_phone = await provider.verify_access_token(payload.access_token)
-    canonical_phone = normalize_phone(verified_phone or "")
-    if not canonical_phone:
-        raise HTTPException(status_code=400, detail="Invalid or expired OTP verification.")
-    user_account, patient, is_new = get_or_create_user_account(db, canonical_phone)
-    if not is_new:
-        update_last_login(db, user_account)
-    token = create_access_token(user_account_id=str(user_account.id), patient_id=str(patient.id), role=user_account.role)
-    return {"success": True, "authenticated": True, "access_token": token, "token_type": "bearer", "user": {
-        "id": str(user_account.id), "role": user_account.role, "patient_id": str(patient.id),
-        "patient_name": patient.name, "phone_masked": f"+91****{canonical_phone[-4:]}",
-        "phone_verified": True, "is_new_patient": is_new,
-    }}
-
+@router.post(
+    "/send-otp",
+    include_in_schema=False,
+)
 @router.post(
     "/mobile/send-otp",
-    summary="Send SMS OTP to Indian Mobile Number",
-    description="Dispatches a real SMS OTP via MSG91. Enforces rate limits and resend cooldown.",
+    summary="Send OTP to Indian Mobile Number",
+    description="Dispatches a Demo OTP (180706). Enforces rate limits and resend cooldown.",
 )
 async def send_mobile_otp(
     payload: SendOtpRequest,
@@ -145,11 +105,10 @@ async def send_mobile_otp(
             detail=f"Please wait {cooldown_remaining} seconds before requesting a new OTP.",
         )
 
-    # 3. Dispatch OTP via active provider (MSG91 / Mock)
+    # 3. Dispatch OTP via active provider
     provider = get_otp_provider()
-    # Strip '+' prefix for MSG91 API (expects '91XXXXXXXXXX')
-    msg91_format = strip_plus(canonical_phone)
-    otp_res = await provider.send_otp(phone=msg91_format)
+    formatted_phone = strip_plus(canonical_phone)
+    otp_res = await provider.send_otp(phone=formatted_phone)
 
     if not otp_res.success:
         log_audit_event(
@@ -161,7 +120,7 @@ async def send_mobile_otp(
         )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=otp_res.error or "Failed to dispatch SMS OTP. Please check your number or try again later.",
+            detail=otp_res.error or "Failed to dispatch OTP. Please check your number or try again later.",
         )
 
     # 4. Record state for cooldown & attempt tracking
@@ -179,16 +138,20 @@ async def send_mobile_otp(
 
     return {
         "success": True,
-        "message": "OTP sent successfully to your mobile number.",
+        "message": "Demo OTP sent successfully. Use 180706 to log in or sign up.",
         "request_id": req_id,
         "phone_masked": f"+91****{canonical_phone[-4:]}",
     }
 
 
 @router.post(
+    "/verify-otp",
+    include_in_schema=False,
+)
+@router.post(
     "/mobile/verify-otp",
-    summary="Verify SMS OTP & Authenticate Session",
-    description="Verifies the OTP via MSG91, resolves/creates UserAccount and Patient, and issues a secure JWT access token.",
+    summary="Verify OTP & Authenticate Session",
+    description="Verifies the OTP (180706), resolves/creates UserAccount and Patient, and issues a secure JWT access token.",
 )
 async def verify_mobile_otp(
     payload: VerifyOtpRequest,
@@ -219,9 +182,9 @@ async def verify_mobile_otp(
 
     # 3. Verify OTP via Provider
     provider = get_otp_provider()
-    msg91_format = strip_plus(canonical_phone)
+    formatted_phone = strip_plus(canonical_phone)
     verify_res = await provider.verify_otp(
-        phone=msg91_format,
+        phone=formatted_phone,
         otp=payload.otp,
         req_id=payload.request_id or "",
     )
@@ -267,64 +230,6 @@ async def verify_mobile_otp(
             "phone_masked": f"+91****{canonical_phone[-4:]}",
             "is_new_account": is_new,
             "auth_provider": "mobile_otp",
-        },
-    )
-
-    return {
-        "success": True,
-        "authenticated": True,
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": str(user_account.id),
-            "role": user_account.role,
-            "patient_id": str(patient.id),
-            "patient_name": patient.name,
-            "phone_masked": f"+91****{canonical_phone[-4:]}",
-            "phone_verified": True,
-            "is_new_patient": is_new,
-        },
-    }
-
-
-@router.post(
-    "/mobile/login",
-    summary="Login or register with phone number only",
-    description="Uses the mobile number as the unique patient identifier and creates or retrieves the patient without any OTP or verification step.",
-)
-async def login_with_phone_number(
-    payload: MobileLoginRequest,
-    db: Session = Depends(get_db),
-):
-    canonical_phone = normalize_phone(payload.phone)
-    if not canonical_phone:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid Indian mobile number. Please provide a valid 10-digit phone number.",
-        )
-
-    user_account, patient, is_new = get_or_create_user_account(db, canonical_phone)
-    if not is_new:
-        update_last_login(db, user_account)
-
-    token = create_access_token(
-        user_account_id=str(user_account.id),
-        patient_id=str(patient.id),
-        role=user_account.role,
-    )
-
-    log_audit_event(
-        db=db,
-        actor_type="patient",
-        actor_id=str(user_account.id),
-        action="user_registered_mobile" if is_new else "user_login_mobile",
-        resource_type="user_account",
-        resource_id=str(user_account.id),
-        patient_id=patient.id,
-        details={
-            "phone_masked": f"+91****{canonical_phone[-4:]}",
-            "is_new_account": is_new,
-            "auth_provider": "mobile_number_only",
         },
     )
 

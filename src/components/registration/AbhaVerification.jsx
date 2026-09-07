@@ -213,15 +213,6 @@ export default function AbhaVerification({ onOtpSent }) {
           )}
         </button>
       </form>
-
-      {/* Prototype Notice Callout */}
-      <div className="p-3.5 rounded-2xl bg-[#EAFafa]/70 border border-[#18A6A1]/25 flex items-start gap-2.5 text-left">
-        <Info className="w-4 h-4 text-[#18A6A1] shrink-0 mt-0.5" />
-        <p className="text-xs text-[#17385E]/80 leading-relaxed">
-          <strong>Prototype Note:</strong> For this prototype, OTP verification is simulated. Click <em>Send OTP</em> and use test OTP <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-[#18A6A1]">123456</code>.
-        </p>
-      </div>
-
     </div>
   );
 }

@@ -62,18 +62,19 @@ JWT_ALGORITHM = "HS256"
 # ----- MSG91 OTP Settings -----
 # SECURITY: MSG91_AUTHKEY is loaded from .env only. It must NEVER appear in
 # code, logs, API responses, or Git-tracked files.
-MSG91_AUTHKEY = os.getenv("MSG91_AUTHKEY", "").strip()
-MSG91_WIDGET_ID = os.getenv("MSG91_WIDGET_ID", "").strip()
-MSG91_TOKEN_AUTH = os.getenv("MSG91_TOKEN_AUTH", "").strip()
+MSG91_AUTH_KEY = (os.getenv("MSG91_AUTH_KEY") or os.getenv("MSG91_AUTHKEY") or "").strip()
+MSG91_TEMPLATE_ID = os.getenv("MSG91_TEMPLATE_ID", "").strip()
+MSG91_OTP_LENGTH = int(os.getenv("MSG91_OTP_LENGTH", "6"))
 
-# OTP provider: "msg91" for real SMS, "mock" for local development
-OTP_PROVIDER = os.getenv("OTP_PROVIDER", "msg91").strip().lower()
+# OTP provider: "demo" for fixed OTP 180706 authentication
+OTP_PROVIDER = os.getenv("OTP_PROVIDER", "demo").strip().lower()
 OTP_EXPIRY_SECONDS = int(os.getenv("OTP_EXPIRY_SECONDS", "300"))
 OTP_MAX_ATTEMPTS = int(os.getenv("OTP_MAX_ATTEMPTS", "5"))
 OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("OTP_RESEND_COOLDOWN_SECONDS", "30"))
 
-# ----- MSG91 API Endpoints (v5 Widget) -----
-MSG91_VERIFY_ACCESS_TOKEN_URL = "https://api.msg91.com/api/v5/widget/verifyAccessToken"
+# ----- MSG91 API Endpoints (v5) -----
+MSG91_SEND_OTP_URL = "https://api.msg91.com/api/v5/otp"
+MSG91_VERIFY_OTP_URL = "https://control.msg91.com/api/v5/otp/verify"
 
 # ----- Multilingual Support -----
 SUPPORTED_LANGUAGES: dict[str, str] = {

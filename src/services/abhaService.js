@@ -67,8 +67,8 @@ export const abhaService = {
 
     const cleanOtp = otp ? otp.trim() : '';
 
-    // Mock validation: 123456 is the prototype test OTP
-    if (cleanOtp === '123456') {
+    // Mock validation: 180706 is the demo test OTP
+    if (cleanOtp === '180706') {
       return {
         success: true,
         message: 'ABHA identity verified successfully.',
@@ -82,7 +82,7 @@ export const abhaService = {
 
     return {
       success: false,
-      message: 'Invalid OTP. Please try again (Hint: Use 123456 for prototype).'
+      message: 'Invalid OTP. Please check the code and try again.'
     };
   },
 

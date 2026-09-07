@@ -90,8 +90,7 @@ async def health_check():
     connected, _ = check_db_connection()
     ocr_key = os.getenv("OCR_SPACE_API_KEY", "").strip()
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
-    msg91_key = os.getenv("MSG91_AUTHKEY", "").strip()
-    otp_provider = os.getenv("OTP_PROVIDER", "msg91").strip().lower()
+    otp_provider = os.getenv("OTP_PROVIDER", "demo").strip().lower()
     asr_provider = os.getenv("ASR_PROVIDER", "not_configured").strip().lower()
     abdm_enabled = os.getenv("ABDM_ENABLED", "false").strip().lower() == "true"
 
@@ -102,7 +101,7 @@ async def health_check():
         "database": "connected" if connected else "disconnected",
         "ocr": "configured" if bool(ocr_key) else "not_configured",
         "groq": "configured" if bool(groq_key) else "not_configured",
-        "otp": "configured" if (otp_provider == "mock" or bool(msg91_key)) else "not_configured",
+        "otp": "configured",
         "otp_provider": otp_provider,
         "voice": "configured" if asr_provider != "not_configured" else "not_configured",
         "abdm": "configured" if abdm_enabled else "not_configured",
